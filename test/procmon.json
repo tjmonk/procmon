@@ -1,0 +1,35 @@
+{
+    "processes":[
+        {
+            "id":"varserver",
+            "exec":"varserver",
+            "wait":"1",
+            "monitored" : true
+        },
+        {
+            "id":"corevars",
+            "exec":"varcreate /etc/vars/vars.json",
+            "restart_delay" : 1,
+            "depends":["varserver"],
+            "restart_on_parent_death" : true,
+            "wait":"1"
+        },
+        {
+            "id":"filevars",
+            "exec":"filevars -f /etc/config/filevars.json",
+            "depends":["corevars"],
+            "restart_on_parent_death" : true,
+            "wait":"1",
+            "skip":true,
+            "monitored" : true
+        },
+        {
+            "id":"execvars",
+            "exec":"execvars -f /etc/config/execvars.json",
+            "depends":["corevars"],
+            "restart_on_parent_death" : true,
+            "wait":"1",
+            "monitored" : true
+        }
+    ]
+}
