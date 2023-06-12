@@ -385,7 +385,7 @@ static void usage( char *cmdname )
                 " [-f|F <filename>]\n"
                 " [-h] : display this help\n"
                 " [-l] : list all the monitored processes\n"
-                " [-o fmt] : list the monitored processes using fmt. eg json"
+                " [-o fmt] : list the monitored processes using fmt. eg json\n"
                 " [-x] : remove all monitored processes\n"
                 " [-k] : kill process and suspend monitoring\n"
                 " [-r] : restart process\n"
