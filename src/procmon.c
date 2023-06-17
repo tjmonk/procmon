@@ -863,7 +863,7 @@ static int AddParents( ProcmonState *pProcmonState, Process *pProcess )
             if( ( pName != NULL ) && ( pName->type == JSON_VAR ) )
             {
                 pVar = (JVar *)pName;
-                if ( pVar->var.type = VARTYPE_STR )
+                if ( pVar->var.type = JVARTYPE_STR )
                 {
                     id = pVar->var.val.str;
                     p = FindProcess( id, pProcmonState );
