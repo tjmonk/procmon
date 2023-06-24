@@ -9,7 +9,6 @@ include(GNUInstallDirs)
 
 find_library ( LIB_RT rt REQUIRED )
 find_library ( LIB_PTHREAD pthread REQUIRED )
-find_library( LIB_TJSON tjson REQUIRED )
 
 add_executable( ${PROJECT_NAME}
 	src/procmon.c
@@ -18,7 +17,7 @@ add_executable( ${PROJECT_NAME}
 target_link_libraries( ${PROJECT_NAME}
     ${LIB_RT}
     ${LIB_PTHREAD}
-    ${LIB_TJSON}
+    tjson
 )
 
 set_target_properties( ${PROJECT_NAME}
