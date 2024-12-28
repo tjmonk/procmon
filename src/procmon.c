@@ -347,7 +347,11 @@ int main( int argC, char *argV[] )
 
             if( pProcmonState->primary )
             {
-                printf("Processing the config file \n");
+                if ( pProcmonState->verbose == true )
+                {
+                    printf("Processing the config file \n");
+                }
+                
                 /* the primary process monitor processes the config file */
                 ProcessConfigFile( pProcmonState );
             }
@@ -1640,7 +1644,7 @@ static void *MonitorThread( void *arg )
                     {
                         printf("%s terminated\n", pProcess->id );
                     }
-                    
+
                     RestartDependents( pProcess );
                     break;
                 }
