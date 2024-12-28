@@ -125,6 +125,9 @@ typedef struct _process
     /*! indicates if this process is monitored or runs-to-exit */
     bool monitored;
 
+    /*! enable verbose output for process management */
+    bool verbose;
+
     /*! indicates that this process should be skipped and not started */
     bool skip;
 
@@ -678,6 +681,7 @@ static int SetupProcess( JNode *pNode, void *arg )
                 }
 
                 p->monitored = JSON_GetBool( pNode, "monitored" );
+                p->verbose = JSON_GetBool( pNode, "verbose" );
                 p->skip = JSON_GetBool( pNode, "skip" );
                 p->restart_on_parent_death = JSON_GetBool( pNode,
                                                 "restart_on_parent_death" );
@@ -1411,7 +1415,11 @@ static int InitProcess( Process *pProcess )
 
     if ( pProcess != NULL )
     {
-        printf("Creating thread for process %s\n", pProcess->id );
+        if ( pProcess->verbose == true )
+        {
+            printf("Creating thread for process %s\n", pProcess->id );
+        }
+
         result = pthread_create( &pProcess->thread,
                                  NULL,
                                  &MonitorThread,
@@ -1456,7 +1464,10 @@ static int RunProcess( Process *pProcess )
 
     if ( pProcess != NULL )
     {
-        printf("RunProcess: %s\n", pProcess->id );
+        if ( pProcess->verbose == true )
+        {
+            printf("RunProcess: %s\n", pProcess->id );
+        }
 
         exec = strdup( pProcess->exec );
         if ( exec != NULL )
@@ -1484,7 +1495,11 @@ static int RunProcess( Process *pProcess )
         }
 
         /* spawn the new process, replacing this process with the new one */
-        printf( "running %s\n", pProcess->exec );
+        if ( pProcess->verbose == true )
+        {
+            printf( "running %s\n", pProcess->exec );
+        }
+
         execvp( argv[0], argv );
 
         /* should not get here unless the process failed to start */
@@ -1602,17 +1617,30 @@ static void *MonitorThread( void *arg )
 
                     /* wait for child death */
                     waitpid( pid, &wstatus, 0 );
-                    fprintf( stderr,
-                             "Process %s terminated (wstatus=%d)\n",
-                             pProcess->id,
-                             wstatus );
+
+                    if ( pProcess->verbose == true )
+                    {
+                        fprintf( stderr,
+                                "Process %s terminated (wstatus=%d)\n",
+                                pProcess->id,
+                                wstatus );
+                    }
                 }
                 else
                 {
                     /* processes which are not monitored */
-                    printf("%s will not be monitored\n", pProcess->id );
+                    if ( pProcess->verbose == true )
+                    {
+                        printf("%s will not be monitored\n", pProcess->id );
+                    }
+
                     waitpid( pid, &wstatus, 0 );
-                    printf("%s terminated\n", pProcess->id );
+
+                    if ( pProcess->verbose == true )
+                    {
+                        printf("%s terminated\n", pProcess->id );
+                    }
+                    
                     RestartDependents( pProcess );
                     break;
                 }
@@ -1878,7 +1906,10 @@ static int makelock( Process *pProcess )
         pid = pProcess->pid;
         name = pProcess->id;
 
-        printf("makelock: %s (%d)\n", name, pid );
+        if ( pProcess->verbose == true )
+        {
+            printf("makelock: %s (%d)\n", name, pid );
+        }
 
         /* clear the lockdata object */
         memset( (void *)&ldata, 0, sizeof(LockData) );
@@ -2986,6 +3017,7 @@ static int MonitorProcmon( ProcmonState *pProcmonState )
 
             /* build the procmonProcess object */
             p->exec = strdup(cmd);
+            p->verbose = pProcmonState->verbose;
             p->monitored = true;
             p->id = pProcmonState->primary ? "procmon2" : "procmon1";
 
@@ -3038,7 +3070,11 @@ static int MakeOwnLock( ProcmonState *pProcmonState )
             /* get the process name */
             p->id = pProcmonState->primary ? "procmon1" : "procmon2";
 
-            printf("Creating Lock for %s\n", p->id );
+            p->verbose = pProcmonState->verbose;
+            if (pProcmonState->verbose == true ) 
+            {
+                printf("Creating Lock for %s\n", p->id );
+            }
 
             /* generate the command to show in the process list */
             fileArg =  pProcmonState->primary ? "-F" : "-f";
